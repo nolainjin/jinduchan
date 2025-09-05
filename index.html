@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Matrix Calculator</title>
+<style>
+body {
+    background: black;
+    color: #0F0;
+    font-family: monospace;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+#calculator {
+    text-align: center;
+    background: rgba(0,0,0,0.8);
+    padding: 20px;
+    border: 1px solid #0F0;
+}
+#display {
+    background: black;
+    color: #0F0;
+    font-size: 2em;
+    padding: 10px;
+    margin-bottom: 10px;
+    min-width: 200px;
+    word-break: break-all;
+    border: 1px solid #0F0;
+}
+button {
+    background: black;
+    color: #0F0;
+    border: 1px solid #0F0;
+    padding: 10px 15px;
+    font-size: 1em;
+    margin: 5px;
+    cursor: pointer;
+}
+#matrix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+</style>
+</head>
+<body>
+<div id="calculator">
+    <div id="display">0</div>
+    <div id="buttons">
+        <div>
+            <button onclick="press('7')">7</button>
+            <button onclick="press('8')">8</button>
+            <button onclick="press('9')">9</button>
+            <button onclick="press('/')">/</button>
+        </div>
+        <div>
+            <button onclick="press('4')">4</button>
+            <button onclick="press('5')">5</button>
+            <button onclick="press('6')">6</button>
+            <button onclick="press('*')">*</button>
+        </div>
+        <div>
+            <button onclick="press('1')">1</button>
+            <button onclick="press('2')">2</button>
+            <button onclick="press('3')">3</button>
+            <button onclick="press('-')">-</button>
+        </div>
+        <div>
+            <button onclick="press('0')">0</button>
+            <button onclick="press('.')">.</button>
+            <button onclick="calculate()">=</button>
+            <button onclick="press('+')">+</button>
+        </div>
+        <div>
+            <button onclick="clearDisplay()">C</button>
+        </div>
+    </div>
+</div>
+<canvas id="matrix"></canvas>
+<script>
+let display = document.getElementById('display');
+let expression = '';
+function press(val) {
+    if (display.innerText === '0') display.innerText = '';
+    display.innerText += val;
+    expression += val;
+}
+function clearDisplay() {
+    display.innerText = '0';
+    expression = '';
+}
+function calculate() {
+    try {
+        const result = eval(expression);
+        display.innerText = result;
+        expression = String(result);
+    } catch(e) {
+        display.innerText = 'Error';
+        expression = '';
+    }
+    startMatrix();
+}
+
+// Matrix effect
+var canvas = document.getElementById('matrix');
+var ctx = canvas.getContext('2d');
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+var letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+letters = letters.split('');
+var fontSize = 16;
+var columns = canvas.width / fontSize;
+var drops = [];
+for (var x = 0; x < columns; x++) {
+    drops[x] = 1;
+}
+function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0F0';
+    ctx.font = fontSize + 'px monospace';
+    for (var i = 0; i < drops.length; i++) {
+        var text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+        drops[i]++;
+    }
+}
+var interval;
+function startMatrix() {
+    clearInterval(interval);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    interval = setInterval(draw, 33);
+    setTimeout(function() {
+        clearInterval(interval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }, 1500);
+}
+</script>
+</body>
+</html>
